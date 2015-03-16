@@ -1,0 +1,12 @@
+{
+    "name": "ebaschiera/pvoutput",
+    "description": "PVOutput.org API implementation",
+    "license": "GPL2",
+    "authors": [
+        {
+            "name": "Ermanno Baschiera",
+            "email": "ebaschiera@gmail.com"
+        }
+    ],
+    "require": {}
+}
