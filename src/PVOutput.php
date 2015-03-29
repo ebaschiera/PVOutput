@@ -30,18 +30,19 @@ class PVOutput {
   }
 
   /**
-   * Adds a Status to PVOutput.org via the Add Status Service
+   * Adds a Status to PVOutput.org via the Add Status Service.
+   * This method will send instant values (v2 and/or v4 fields according to API specs).
    * 
-   * @param int $production_amount
-   * @param int $consumption_amount
-   * @param \DateTime $timestamp
+   * @param int $generation_amount watts (v2 parameter in API)
+   * @param int $consumption_amount watts (v4 parameter in API)
+   * @param \DateTime $timestamp (d and t parameters in API)
    * @return boolean
    * @link http://www.pvoutput.org/help.html#api-addstatus API documentation
    */
-  public function addStatus($production_amount = NULL, $consumption_amount = NULL, \DateTime $timestamp = NULL) {
+  public function addStatus($generation_amount = NULL, $consumption_amount = NULL, \DateTime $timestamp = NULL) {
 
-    if (is_null($production_amount) && is_null($consumption_amount)) {
-      throw new \Exception('Missing both production and consumption values');
+    if (is_null($generation_amount) && is_null($consumption_amount)) {
+      throw new \Exception('Missing generation and consumption values at the same time. At least one must be provided.');
     }
 
     if (is_null($timestamp)) {
@@ -55,8 +56,8 @@ class PVOutput {
         'd' => $date,
         't' => $time,
     );
-    if (!is_null($production_amount)) {
-      $post_fields['v2'] = $production_amount;
+    if (!is_null($generation_amount)) {
+      $post_fields['v2'] = $generation_amount;
     }
     if (!is_null($consumption_amount)) {
       $post_fields['v4'] = $consumption_amount;
@@ -75,21 +76,24 @@ class PVOutput {
    * Adds a daily Output to PVOutput.org via the Add Output Service
    * 
    * @param \DateTime $date
-   * @param int $generated
-   * @param int $peak_power
-   * @param \DateTime $peak_time
-   * @param int $consumption
+   * @param int $generated watt hours (g parameter in API)
+   * @param int $peak_power watts (pp parameter in API)
+   * @param \DateTime $peak_time (pt parameter in API)
+   * @param int $consumption watt hours (c parameter in API)
    * @return boolean true if sending data is ok
    * @throws \Exception
    * @link http://www.pvoutput.org/help.html#api-addoutput API documentation
    */
-  public function addOutput(\DateTime $date, $generated = NULL, $peak_power = NULL, 
+  public function addOutput(\DateTime $date = NULL, $generated = NULL, $peak_power = NULL, 
           \DateTime $peak_time = NULL, $consumption = NULL) {
     
     if (is_null($generated) && is_null($consumption)) {
       throw new \Exception('Missing both generation and consumption values');
     }
     
+    if (is_null($date)) {
+      $date = new \DateTime();
+    }
     $post_fields = array('d' => $date->format('Ymd'));
     
     if (!is_null($generated)) {
