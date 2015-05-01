@@ -31,11 +31,12 @@ class PVOutput {
   }
 
   /**
-   * Adds a Status to PVOutput.org via the Add Status Service
+   * Adds a Status to PVOutput.org via the Add Status Service.
+   * This method will send instant values (v2 and/or v4 fields according to API specs).
    * 
-   * @param int $production_amount
-   * @param int $consumption_amount
-   * @param \DateTime $timestamp
+   * @param int $generation_amount watts (v2 parameter in API)
+   * @param int $consumption_amount watts (v4 parameter in API)
+   * @param \DateTime $timestamp (d and t parameters in API)
    * @return boolean
    * @link http://www.pvoutput.org/help.html#api-addstatus API documentation
    */
@@ -76,10 +77,10 @@ class PVOutput {
    * Adds a daily Output to PVOutput.org via the Add Output Service
    * 
    * @param \DateTime $date
-   * @param int $generated
-   * @param int $peak_power
-   * @param \DateTime $peak_time
-   * @param int $consumption
+   * @param int $generated watt hours (g parameter in API)
+   * @param int $peak_power watts (pp parameter in API)
+   * @param \DateTime $peak_time (pt parameter in API)
+   * @param int $consumption watt hours (c parameter in API)
    * @return boolean true if sending data is ok
    * @throws \Exception
    * @link http://www.pvoutput.org/help.html#api-addoutput API documentation
@@ -117,12 +118,13 @@ class PVOutput {
    * 
    * @param \DateTime $from_date
    * @param \DateTime $to_date
-   * @param string $aggregate
+   * @param string $aggregate 'm' or 'y' ('a' parameter in API)
    * @param int $limit
    * @param int $team_id
    * @param int $system_id
    * @return string
    * @throws \Exception
+   * @link http://www.pvoutput.org/help.html#api-getoutput API documentation
    */
   public function getOutput(\DateTime $from_date = NULL, \DateTime $to_date = NULL, $aggregate = NULL,
           $limit = NULL, $team_id = NULL, $system_id = NULL) {
