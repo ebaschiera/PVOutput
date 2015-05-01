@@ -40,10 +40,10 @@ class PVOutput {
    * @return boolean
    * @link http://www.pvoutput.org/help.html#api-addstatus API documentation
    */
-  public function addStatus($production_amount = NULL, $consumption_amount = NULL, \DateTime $timestamp = NULL) {
+  public function addStatus($generation_amount = NULL, $consumption_amount = NULL, \DateTime $timestamp = NULL) {
 
-    if (is_null($production_amount) && is_null($consumption_amount)) {
-      throw new \Exception('Missing both production and consumption values');
+    if (is_null($generation_amount) && is_null($consumption_amount)) {
+      throw new \Exception('Missing generation and consumption values at the same time. At least one must be provided.');
     }
 
     if (is_null($timestamp)) {
@@ -57,8 +57,8 @@ class PVOutput {
         'd' => $date,
         't' => $time,
     );
-    if (!is_null($production_amount)) {
-      $post_fields['v2'] = $production_amount;
+    if (!is_null($generation_amount)) {
+      $post_fields['v2'] = $generation_amount;
     }
     if (!is_null($consumption_amount)) {
       $post_fields['v4'] = $consumption_amount;
@@ -85,13 +85,16 @@ class PVOutput {
    * @throws \Exception
    * @link http://www.pvoutput.org/help.html#api-addoutput API documentation
    */
-  public function addOutput(\DateTime $date, $generated = NULL, $peak_power = NULL, 
+  public function addOutput(\DateTime $date = NULL, $generated = NULL, $peak_power = NULL, 
           \DateTime $peak_time = NULL, $consumption = NULL) {
     
     if (is_null($generated) && is_null($consumption)) {
       throw new \Exception('Missing both generation and consumption values');
     }
     
+    if (is_null($date)) {
+      $date = new \DateTime();
+    }
     $post_fields = array('d' => $date->format('Ymd'));
     
     if (!is_null($generated)) {
