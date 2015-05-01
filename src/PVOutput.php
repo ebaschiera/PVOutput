@@ -14,6 +14,7 @@ class PVOutput {
 
   const PVOUTPUT_ADDSTATUS_URL = 'http://pvoutput.org/service/r2/addstatus.jsp';
   const PVOUTPUT_ADDOUTPUT_URL = 'http://pvoutput.org/service/r2/addoutput.jsp';
+  const PVOUTPUT_GETOUTPUT_URL = 'http://pvoutput.org/service/r2/getoutput.jsp';
 
   /**
    * Class constructor with PVOutput parameters init
@@ -114,19 +115,85 @@ class PVOutput {
     }
   }
   
-  private function makeRequest($url, $post_fields) {
+  
+  /**
+   * Gets a daily Output to PVOutput.org via the Get Output Service
+   * 
+   * @param \DateTime $from_date
+   * @param \DateTime $to_date
+   * @param string $aggregate 'm' or 'y' ('a' parameter in API)
+   * @param int $limit
+   * @param int $team_id
+   * @param int $system_id
+   * @return string
+   * @throws \Exception
+   * @link http://www.pvoutput.org/help.html#api-getoutput API documentation
+   */
+  public function getOutput(\DateTime $from_date = NULL, \DateTime $to_date = NULL, $aggregate = NULL,
+          $limit = NULL, $team_id = NULL, $system_id = NULL) {
+    
+    $request_fields = array();
+    if (!is_null($from_date)) {
+      $request_fields['df'] = $from_date->format('Ymd');
+    }
+    if (!is_null($to_date)) {
+      $request_fields['dt'] = $to_date->format('Ymd');
+    }
+    if (!is_null($aggregate)) {
+      if ($aggregate != 'm' && $aggregate != 'y') {
+        throw new \Exception('Aggregate value must be \'m\' or \'y\'.');
+      }
+      $request_fields['a'] = $aggregate;
+    }
+    if (!is_null($limit)) {
+      if (!is_numeric($limit)) {
+        throw new \Exception('Limit value must be a number');
+      }
+      $request_fields['limit'] = $limit;
+    }
+    if (!is_null($team_id)) {
+      if (!is_numeric($team_id)) {
+        throw new \Exception('Team id value must be a number');
+      }
+      $request_fields['tid'] = $team_id;
+    }
+    if (!is_null($system_id)) {
+      if (!is_numeric($system_id)) {
+        throw new \Exception('System id value must be a number');
+      }
+      $request_fields['sid1'] = $system_id;
+    }
+    
+    $response = $this->makeRequest(self::PVOUTPUT_GETOUTPUT_URL, $request_fields, FALSE);
+    return $response;
+  }
+  
+  private function makeRequest($url, $request_fields = NULL, $isPost = TRUE) {
     $ch = curl_init();
-    curl_setopt_array($ch, array(
+    $curl_options = array(
         CURLOPT_URL => $url,
-        CURLOPT_POST => TRUE,
         CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_POSTFIELDS => http_build_query($post_fields),
         CURLOPT_HTTPHEADER => array(
             'X-Pvoutput-Apikey: ' . $this->api_key,
             'X-Pvoutput-SystemId: ' . $this->system_id,
         ),
-    ));
-    return curl_exec($ch);
+        CURLOPT_HEADER => TRUE,
+    );
+    
+    if ($isPost) {
+      $curl_options[CURLOPT_POST] = TRUE;
+      $curl_options[CURLOPT_POSTFIELDS] = http_build_query($request_fields);
+    } else {
+      $curl_options[CURLOPT_URL] = $url . '?' .http_build_query($request_fields);
+    }
+    curl_setopt_array($ch, $curl_options);
+    $response = curl_exec($ch);
+    list($header, $body) = explode("\r\n\r\n", $response, 2);
+    $header_rows = explode("\r\n", $header);
+    if ($header_rows[0] != 'HTTP/1.1 200 OK') {
+      throw new Exception('Error contacting the web service. Header returned is: ' . $header_rows[0]);
+    }
+    return $body;
   }
 
 }
