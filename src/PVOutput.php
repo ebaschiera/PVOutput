@@ -191,7 +191,7 @@ class PVOutput {
     list($header, $body) = explode("\r\n\r\n", $response, 2);
     $header_rows = explode("\r\n", $header);
     if ($header_rows[0] != 'HTTP/1.1 200 OK') {
-      throw new Exception('Error contacting the web service. Header returned is: ' . $header_rows[0]);
+      throw new \Exception('Error contacting the web service. Header returned is: ' . $header_rows[0]);
     }
     return $body;
   }
