@@ -81,12 +81,13 @@ class PVOutput {
    * @param int $peak_power watts (pp parameter in API)
    * @param \DateTime $peak_time (pt parameter in API)
    * @param int $consumption watt hours (c parameter in API)
+   * @param int $exported watt hours (e parameter in API)
    * @return boolean true if sending data is ok
    * @throws \Exception
    * @link http://www.pvoutput.org/help.html#api-addoutput API documentation
    */
   public function addOutput(\DateTime $date = NULL, $generated = NULL, $peak_power = NULL, 
-          \DateTime $peak_time = NULL, $consumption = NULL) {
+          \DateTime $peak_time = NULL, $consumption = NULL, $exported = NULL) {
     
     if (is_null($generated) && is_null($consumption)) {
       throw new \Exception('Missing both generation and consumption values');
@@ -106,6 +107,9 @@ class PVOutput {
     }
     if (!is_null($consumption)) {
       $post_fields['c'] = $consumption;
+    }
+    if (!is_null($exported)) {
+      $post_fields['e'] = $exported;
     }
     $response = $this->makeRequest(self::PVOUTPUT_ADDOUTPUT_URL, $post_fields);
     if ($response == 'OK 200: Added Output' || $response == 'OK 200: Updated Output') {

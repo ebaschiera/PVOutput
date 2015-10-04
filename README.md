@@ -13,6 +13,7 @@ Please note that not all API parameters are handled by this class methods. Param
 + Add Output
  + `d`
  + `g`
+ + `e`
  + `pp`
  + `pt`
  + `c`
@@ -64,8 +65,8 @@ $pvoutput->addStatus(2500, 1500); //sends instant generation and consumption
 
 //at the end of the day
 $pvoutput = new \PVOutput\PVOutput($system_id, $api_key);
-$pvoutput->addOutput(NULL, 9000, 3100, $peak_output_datetime, 8000);
-//sends generated energy, peak generation power, peak generation datetime, consumed energy
+$pvoutput->addOutput(NULL, 9000, 3100, $peak_output_datetime, 8000, 1000);
+//sends generated energy, peak generation power, peak generation datetime, consumed energy, exported energy
 
 
 //get a full month aggregated output
